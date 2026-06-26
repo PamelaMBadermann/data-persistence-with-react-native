@@ -1,18 +1,37 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Produto } from '../models/Produto';
 
-export const salvarCor = async (valor: string): Promise<void> => {
+const STORAGE_KEYS = {
+  PRODUTO: 'produto',
+};
+
+export const salvarProduto = async (produto: Produto): Promise<void> => {
   try {
-    await AsyncStorage.setItem('cor', valor);
+    const produtoJSON = JSON.stringify(produto);
+
+    await AsyncStorage.setItem(STORAGE_KEYS.PRODUTO, produtoJSON);
   } catch (error) {
-    console.error(error);
+    console.error('Erro ao salvar produto:', error);
   }
 };
 
-export const obterCor = async (): Promise<string | null> => {
+export const obterProduto = async (): Promise<Produto | null> => {
   try {
-    return await AsyncStorage.getItem('cor');
+    const produtoJSON = await AsyncStorage.getItem(STORAGE_KEYS.PRODUTO);
+
+    if (!produtoJSON) {
+      return null;
+    }
+
+    const objeto = JSON.parse(produtoJSON);
+
+    return new Produto(
+      objeto.codigo,
+      objeto.nome,
+      objeto.quantidade
+    );
   } catch (error) {
-    console.error(error);
+    console.error('Erro ao recuperar produto:', error);
     return null;
   }
 };

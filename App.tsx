@@ -1,20 +1,41 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import { Button, Text } from 'react-native';
+import {
+  SafeAreaProvider,
+  SafeAreaView,
+} from 'react-native-safe-area-context';
+
+import { salvarCor, obterCor } from './src/services/storage';
+
+import { styles } from './src/styles/app.styles';
 
 export default function App() {
+  const salvar = async () => {
+    await salvarCor('Laranja');
+    console.log('Cor salva com sucesso!');
+  };
+
+  const recuperar = async () => {
+    const cor = await obterCor();
+    console.log('Cor recuperada:', cor);
+  };
+
   return (
-    <View style={styles.container}>
-      <Text>Open up App.tsx to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <SafeAreaProvider>
+      <SafeAreaView
+        style={styles.container}
+      >
+        <Text>Teste do AsyncStorage</Text>
+
+        <Button
+          title="Salvar"
+          onPress={salvar}
+        />
+
+        <Button
+          title="Recuperar"
+          onPress={recuperar}
+        />
+      </SafeAreaView>
+    </SafeAreaProvider>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});

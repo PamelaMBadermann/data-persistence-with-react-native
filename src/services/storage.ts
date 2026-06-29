@@ -2,36 +2,100 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Produto } from '../models/Produto';
 
 const STORAGE_KEYS = {
-  PRODUTO: 'produto',
+  PRODUTOS: 'produtos',
 };
 
-export const salvarProduto = async (produto: Produto): Promise<void> => {
-  try {
-    const produtoJSON = JSON.stringify(produto);
+type ProdutoDTO = {
+  codigo: number;
+  nome: string;
+  quantidade: number;
+};
 
-    await AsyncStorage.setItem(STORAGE_KEYS.PRODUTO, produtoJSON);
+export const obterProdutos = async (): Promise<Produto[]> => {
+  try {
+    const json = await AsyncStorage.getItem(STORAGE_KEYS.PRODUTOS);
+
+    if (!json) {
+      return [];
+    }
+
+    const lista: ProdutoDTO[] = JSON.parse(json);
+
+    return lista.map(
+      (produto) =>
+        new Produto(
+          produto.codigo,
+          produto.nome,
+          produto.quantidade
+        )
+    );
+  } catch (error) {
+    console.error('Erro ao recuperar produtos:', error);
+    return [];
+  }
+};
+
+export const salvarProduto = async (
+  produto: Produto
+): Promise<void> => {
+  try {
+    const lista = await obterProdutos();
+
+    lista.push(produto);
+
+    await AsyncStorage.setItem(
+      STORAGE_KEYS.PRODUTOS,
+      JSON.stringify(lista)
+    );
   } catch (error) {
     console.error('Erro ao salvar produto:', error);
   }
 };
 
-export const obterProduto = async (): Promise<Produto | null> => {
+export const removerProduto = async (
+  codigo: number
+): Promise<void> => {
   try {
-    const produtoJSON = await AsyncStorage.getItem(STORAGE_KEYS.PRODUTO);
+    const lista = await obterProdutos();
 
-    if (!produtoJSON) {
-      return null;
-    }
+    const novaLista = lista.filter(
+      (produto) => produto.codigo !== codigo
+    );
 
-    const objeto = JSON.parse(produtoJSON);
-
-    return new Produto(
-      objeto.codigo,
-      objeto.nome,
-      objeto.quantidade
+    await AsyncStorage.setItem(
+      STORAGE_KEYS.PRODUTOS,
+      JSON.stringify(novaLista)
     );
   } catch (error) {
-    console.error('Erro ao recuperar produto:', error);
-    return null;
+    console.error('Erro ao remover produto:', error);
+  }
+};
+
+export const atualizarProduto = async (
+  produtoAtualizado: Produto
+): Promise<void> => {
+  try {
+    const lista = await obterProdutos();
+
+    const novaLista = lista.map((produto) =>
+      produto.codigo === produtoAtualizado.codigo
+        ? produtoAtualizado
+        : produto
+    );
+
+    await AsyncStorage.setItem(
+      STORAGE_KEYS.PRODUTOS,
+      JSON.stringify(novaLista)
+    );
+  } catch (error) {
+    console.error('Erro ao atualizar produto:', error);
+  }
+};
+
+export const limparProdutos = async (): Promise<void> => {
+  try {
+    await AsyncStorage.removeItem(STORAGE_KEYS.PRODUTOS);
+  } catch (error) {
+    console.error('Erro ao limpar produtos:', error);
   }
 };

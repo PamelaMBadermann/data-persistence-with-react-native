@@ -7,7 +7,7 @@ import {
 } from 'react-native';
 
 import { Produto } from '../models/Produto';
-import { salvarProduto } from '../services/storage';
+import { ProdutoRepository } from '../database/DatabaseRepository';
 import { styles } from '../styles/app.styles';
 
 type Props = {
@@ -18,6 +18,8 @@ export default function ProdutoForm({ navigation }: Props) {
   const [codigo, setCodigo] = useState<string>('');
   const [nome, setNome] = useState<string>('');
   const [quantidade, setQuantidade] = useState<string>('');
+  const repository = new ProdutoRepository();
+  
 
   const salvar = async () => {
   const prodAux = new Produto(
@@ -26,7 +28,7 @@ export default function ProdutoForm({ navigation }: Props) {
     parseInt(quantidade)
   );
 
-  await salvarProduto(prodAux);
+  await repository.adicionar(prodAux);
 
   navigation.navigate('ListaProdutos');
 };

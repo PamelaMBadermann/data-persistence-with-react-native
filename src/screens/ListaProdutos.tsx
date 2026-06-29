@@ -9,11 +9,8 @@ import { useFocusEffect } from '@react-navigation/native';
 
 import ProdutoItem from '../components/ProdutoItem';
 import { Produto } from '../models/Produto';
-import {
-  obterProdutos,
-  removerProduto,
-} from '../services/storage';
 import { styles } from '../styles/app.styles';
+import { ProdutoRepository } from '../database/DatabaseRepository';
 
 type Props = {
   navigation: any;
@@ -23,9 +20,10 @@ export default function ListaProdutos({
   navigation,
 }: Props) {
   const [produtos, setProdutos] = useState<Produto[]>([]);
+  const repository = new ProdutoRepository();
 
   const carregarProdutos = async () => {
-    const lista = await obterProdutos();
+    const lista = await repository.obterTodos();
     setProdutos(lista);
   };
 
@@ -36,7 +34,7 @@ export default function ListaProdutos({
   );
 
   const excluirProduto = async (codigo: number) => {
-    await removerProduto(codigo);
+    await repository.remover(codigo);
     carregarProdutos();
   };
 

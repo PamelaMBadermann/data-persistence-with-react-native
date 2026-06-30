@@ -1,5 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Produto } from '../models/Produto';
+import { Produto } from '../../models/Produto';
 
 const STORAGE_KEYS = {
   PRODUTOS: 'produtos',
